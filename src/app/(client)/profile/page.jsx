@@ -40,6 +40,8 @@ const GENDER_OPTIONS = [
   { value: "prefer_not_to_say", label: "Prefer not to say" },
 ];
 
+const MAX_PHOTO_MB = 6; // keep in step with MAX_AVATAR in services/account.service.js
+
 const initialsOf = (first, last) =>
   `${(first || "").trim().charAt(0)}${(last || "").trim().charAt(0)}`.toUpperCase() || "?";
 
@@ -247,8 +249,8 @@ export default function ProfilePage() {
       setNotice({ kind: "error", text: "Only JPG, PNG or WebP photos are allowed." });
       return;
     }
-    if (file.size > 2 * 1024 * 1024) {
-      setNotice({ kind: "error", text: "Photos must be 2 MB or smaller." });
+    if (file.size > MAX_PHOTO_MB * 1024 * 1024) {
+      setNotice({ kind: "error", text: `Photos must be ${MAX_PHOTO_MB} MB or smaller.` });
       return;
     }
 
@@ -451,7 +453,7 @@ export default function ProfilePage() {
                         Profile Photo
                       </p>
                       <p className="mt-1 text-xs text-gray-500">
-                        {uploadingPhoto ? "Uploading..." : "JPG, PNG or WebP. Maximum size 2MB."}
+                        {uploadingPhoto ? "Uploading..." : `JPG, PNG or WebP. Maximum size ${MAX_PHOTO_MB}MB.`}
                       </p>
                       {memberSince && (
                         <p className="mt-1 text-xs text-gray-400">

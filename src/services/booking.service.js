@@ -60,7 +60,7 @@ export async function createBooking(input) {
     const booking = await withTransaction(async (connection) => {
       const hotels = await run(
         connection,
-        "SELECT * FROM hotels WHERE id = ? AND status NOT IN ('Pending','Rejected','inactive')",
+        "SELECT * FROM hotels WHERE id = ? AND approval_status NOT IN ('Pending','Rejected','inactive')",
         [hotelId]
       );
       const hotel = hotels[0];
@@ -97,7 +97,7 @@ export async function createBooking(input) {
         message: `Your booking ${number} at ${hotel.hotel_name} is waiting for approval.`,
         category: "booking",
         icon: "event",
-        actionUrl: "/dashboard/mybooking",
+        actionUrl: "/mybooking",
       });
 
       const rows = await run(connection, "SELECT * FROM bookings WHERE id = ?", [id]);

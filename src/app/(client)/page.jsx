@@ -65,20 +65,22 @@ function normalizeResort(data, id) {
         typeof item === "string" ? item : item?.url
       )
       .find(Boolean) ||
-    data.image ||
+        data.image ||
     data.imageUrl ||
     data.photoURL ||
     data.coverImage ||
+    data.cover_image
     "";
 
   return {
     id,
-    name: data.name || data.title || "Unnamed resort",
+    name: data.hotelName  || "Unnamed resort",
     location: location || data.address || "Location unavailable",
     country: data.country || "",
     city: data.city || "",
     state: data.state || "",
     type: data.type || data.resortType || "",
+    room_name: data.room_type_name || data.name || "",
     price: Number(
       data.pricePerNight ??
       data.price ??
@@ -112,9 +114,7 @@ function getHotelDetailsUrl(resort, searchData) {
     params.set("guests", searchData.guests);
   }
 
-  return `/dashboard/hoteldetails/${encodeURIComponent(
-    resort.id
-  )}?${params.toString()}`;
+  return `/categorydetails?category=${encodeURIComponent(resort.room_name)}&city=${encodeURIComponent(resort.city)}`;
 }
 
 export default function ResortsPage() {
@@ -269,6 +269,7 @@ export default function ResortsPage() {
 
               <input
                 type="text"
+                className="text-3xl"
                 required
                 placeholder="Hotel, city or destination"
                 value={destination}
@@ -497,23 +498,14 @@ export default function ResortsPage() {
 
                       <div className="resort-card-bottom">
                         <div className="resort-price">
-                          {resort.price > 0 ? (
+                          {
                             <>
                               <strong>
-                                {resort.price.toLocaleString(
-                                  "en-NG",
-                                  {
-                                    style: "currency",
-                                    currency: "NGN",
-                                    maximumFractionDigits: 0,
-                                  }
-                                )}
+                                {resort.room_name}
                               </strong>
-                              <span>/ night</span>
+                            
                             </>
-                          ) : (
-                            <span>Price unavailable</span>
-                          )}
+                          }
                         </div>
 
                         <Link

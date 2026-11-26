@@ -52,14 +52,18 @@ function normalizeResort(data, id) {
     data.imageUrl ||
     data.photoURL ||
     data.coverImage ||
-    "";
+    data.cover_image
+  "";
 
   return {
     id,
     name: data.hotelName || "Unnamed hotel",
     location: location || data.address || "Location unavailable",
+    city: data.city || "",
+    state: data.state || "",
     country: data.country || "",
     type: data.category || "",
+    room_name: data.room_type_name || data.name || "",
     price: Number(data.price || 0),
     rating: getStarRating(data.starRating),
     reviews: Number(data.reviewCount || 0),
@@ -667,10 +671,13 @@ export default function ExplorePage() {
                     <p className="resort-location">
                       <MapPin size={14} />
                       {resort.location}
+
                       {resort.type && (
                         <>
                           <span>·</span>
-                          {resort.type}
+                          <p className="font-extrabold text-blue-300"> {resort.room_name}</p>
+                          <p>({resort.type})</p>
+
                         </>
                       )}
                     </p>
@@ -703,7 +710,8 @@ export default function ExplorePage() {
                       </div>
 
                       <Link
-                        href={`/dashboard/hoteldetails/${resort.id}`}
+                        key={`${resort.room_name}-${resort.city}`}
+                        href={`/categorydetails?category=${encodeURIComponent(resort.room_name)}&city=${encodeURIComponent(resort.city)}`}
                         className="view-details-button"
                       >
                         View Details
@@ -716,7 +724,7 @@ export default function ExplorePage() {
             </div>
           ) : (
             <div className="no-resorts">
-             
+
               <h3>No resorts found</h3>
               <p>
                 {resorts.length === 0

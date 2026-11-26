@@ -139,7 +139,7 @@ export default function MyBookingPage() {
       ) : filtered.length === 0 ? (
         <div className="mybookings-empty">
           <p>No bookings found.</p>
-          <Link href="/dashboard/explore">Explore hotels</Link>
+          <Link href="/explore">Explore hotels</Link>
         </div>
       ) : (
         <div className="mybookings-list">
@@ -170,7 +170,7 @@ export default function MyBookingPage() {
                   {b.hotelId && (
                     <Link
                       className="mybooking-btn"
-                      href={`/dashboard/hoteldetails/${b.hotelId}`}
+                      href={`/hoteldetails/${b.hotelId}`}
                     >
                       View hotel
                     </Link>

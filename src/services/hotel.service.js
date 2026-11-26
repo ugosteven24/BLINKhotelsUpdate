@@ -195,14 +195,20 @@ export async function listHotels(options = {}) {
 
   const rows = await query(
     `
-      SELECT
-        h.*,
-        ${priceQuery}
-      FROM hotels h
-      WHERE ${where}
-      ORDER BY h.id ASC
-      LIMIT ${limit}
-    `,
+    SELECT
+      h.*,
+      rt.id AS room_type_id,
+      rt.name AS room_type_name,
+      rt.base_price AS room_type_price,
+      rt.status AS room_type_status,
+      ${priceQuery}
+    FROM hotels h
+    LEFT JOIN room_types rt
+      ON rt.hotel_id = h.id
+    WHERE ${where}
+    ORDER BY h.id ASC
+    LIMIT ${limit}
+  `,
     queryParams
   );
 
@@ -218,23 +224,145 @@ export async function listHotels(options = {}) {
 
 
 export async function getHotel(id) {
-  if (typeof id !== "string" || !id || id.length > 80) return null;
-
-  let rows = await query("SELECT * FROM hotels WHERE id = ?", [id]);
-  // Old numeric ids used in /dashboard/hoteldetails/<n> links.
-  if (!rows[0] && /^\d{1,9}$/.test(id)) {
-    rows = await query("SELECT * FROM hotels WHERE legacy_id = ? LIMIT 1", [Number(id)]);
+  if (typeof id !== "string" || !id || id.length > 80) {
+    return null;
   }
+
+  let rows = await query(
+    "SELECT * FROM hotels WHERE id = ? LIMIT 1",
+    [id]
+  );
+
+  // Support old numeric IDs.
+  if (!rows[0] && /^\d{1,9}$/.test(id)) {
+    rows = await query(
+      "SELECT * FROM hotels WHERE legacy_id = ? LIMIT 1",
+      [Number(id)]
+    );
+  }
+
   const row = rows[0];
+
   if (!row) return null;
 
+  // Check access to hidden hotels.
   if (HIDDEN.includes(row.status)) {
     const user = await getSessionUser();
-    if (!user || !(await canManage(user, row.id))) return null;
+
+    if (!user || !(await canManage(user, row.id))) {
+      return null;
+    }
   }
-  return mapHotel(row);
+
+  // Fetch room types.
+  const roomTypes = await query(
+    `
+      SELECT *
+      FROM room_types
+      WHERE hotel_id = ?
+      ORDER BY id ASC
+    `,
+    [row.id]
+  );
+
+  // Fetch hotel amenities.
+  const amenities = await query(
+    `
+      SELECT a.*
+      FROM hotel_amenities ha
+      INNER JOIN amenities a
+        ON a.id = ha.amenity_id
+      WHERE ha.hotel_id = ?
+      ORDER BY a.id ASC
+    `,
+    [row.id]
+  );
+
+  // Fetch hotel images.
+  const images = await query(
+    `
+      SELECT *
+      FROM hotel_images
+      WHERE hotel_id = ?
+      ORDER BY id ASC
+    `,
+    [row.id]
+  );
+
+  return mapHotel({
+    ...row,
+    room_types: roomTypes,
+    amenities,
+    images,
+  });
 }
 
+export async function getHotelsByRoomAndCity(roomName, city) {
+  if (
+    typeof roomName !== "string" ||
+    typeof city !== "string" ||
+    !roomName.trim() ||
+    !city.trim()
+  ) {
+    return [];
+  }
+
+  const rows = await query(
+    `SELECT
+        h.*,
+        rt.id AS matched_room_type_id,
+        rt.name AS room_name,
+        rt.base_price AS room_price,
+        rt.hotel_id AS room_hotel_id
+     FROM hotels h
+     INNER JOIN room_types rt
+       ON rt.hotel_id = h.id
+     WHERE LOWER(TRIM(rt.name)) = LOWER(TRIM(?))
+       AND LOWER(TRIM(h.city)) = LOWER(TRIM(?))
+       AND h.approval_status = 'approved'
+     ORDER BY  h.id DESC`,
+    [roomName.trim(), city.trim()]
+  );
+
+  return rows.map((row) => ({
+    ...mapHotel(row),
+    matchedRoomTypeId: row.matched_room_type_id,
+    roomName: row.room_name,
+    roomPrice: Number(row.room_price) || 0,
+    roomHotelId: row.room_hotel_id,
+  }));
+}
+
+
+export async function getOtherRoomCategories(currentCategory, city) {
+  if (!currentCategory?.trim() || !city?.trim()) {
+    return [];
+  }
+
+  const rows = await query(
+    `SELECT
+        rt.name AS category_name,
+        COUNT(DISTINCT h.id) AS hotel_count,
+        MIN(rt.base_price) AS starting_price
+     FROM room_types rt
+     INNER JOIN hotels h ON h.id = rt.hotel_id
+     WHERE LOWER(TRIM(h.city)) = LOWER(TRIM(?))
+       AND LOWER(TRIM(h.approval_status)) = 'approved'
+       AND LOWER(TRIM(rt.name)) != LOWER(TRIM(?))
+     GROUP BY rt.name
+     ORDER BY rt.name ASC`,
+    [city.trim(), currentCategory.trim()]
+  );
+
+  return rows.map((row) => ({
+    category_name: row.category_name,
+    hotel_count: Number(row.hotel_count) || 0,
+    starting_price:
+      row.starting_price !== null
+        ? Number(row.starting_price)
+        : null,
+  }));
+}
 // ---------------------------------------------------------------------------
 // ADMIN / OWNER MANAGEMENT
 // ---------------------------------------------------------------------------

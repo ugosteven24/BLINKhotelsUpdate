@@ -38,6 +38,7 @@ function BookingContent() {
   const [authReady, setAuthReady] = useState(false);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const [price, setprice] = useState(0);
 
   const [form, setForm] = useState({
     guestName: "",
@@ -49,21 +50,27 @@ function BookingContent() {
     specialRequests: "",
   });
 
+
+
+
   useEffect(() => {
-    const unsub = (() => { let active = true; (async () => { const current = await getCurrentUser(); if (!active) return; 
-      if (!current) {
-        router.replace("/login");
-        return;
-      }
-      setUser(current);
-      setForm((prev) => ({
-        ...prev,
-        guestName: prev.guestName || current.displayName || "",
-        guestEmail: prev.guestEmail || current.email || "",
-        guestPhone: prev.guestPhone || current.phoneNumber || "",
-      }));
-      setAuthReady(true);
-     })(); return () => { active = false; }; })();
+    const unsub = (() => {
+      let active = true; (async () => {
+        const current = await getCurrentUser(); if (!active) return;
+        if (!current) {
+          router.replace("/login");
+          return;
+        }
+        setUser(current);
+        setForm((prev) => ({
+          ...prev,
+          guestName: prev.guestName || current.displayName || "",
+          guestEmail: prev.guestEmail || current.email || "",
+          guestPhone: prev.guestPhone || current.phoneNumber || "",
+        }));
+        setAuthReady(true);
+      })(); return () => { active = false; };
+    })();
     return () => unsub();
   }, [router]);
 
@@ -85,7 +92,10 @@ function BookingContent() {
     () => nightsBetween(form.checkIn, form.checkOut),
     [form.checkIn, form.checkOut]
   );
-  const pricePerNight = Number(hotel?.price) || 0;
+  const pricePerNight = Number(
+    hotel?.roomTypes?.[0]?.base_price
+  ) || 0;
+
   const total = nights * pricePerNight;
 
   const handleChange = (e) =>
@@ -146,7 +156,7 @@ function BookingContent() {
         confirmButtonColor: BUTTON_COLOR,
       });
 
-      router.push("/dashboard/mybooking");
+      router.push("/mybooking");
     } catch (err) {
       console.error("Booking failed:", err);
       Swal.fire({

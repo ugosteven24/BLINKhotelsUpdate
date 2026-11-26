@@ -7,7 +7,7 @@ const cap = (s) => (s ? s.charAt(0).toUpperCase() + s.slice(1) : s);
 const PAYMENT_LABELS = { unpaid: "Unpaid", paid: "Paid", refund_pending: "Refund Requested", refunded: "Refunded" };
 
 export function mapHotels(row) {
-  const data = parseJson(row.data);
+  const data = parseJson(row.data) || {};
   return {
     ...data,
     id: row.id,
@@ -16,6 +16,7 @@ export function mapHotels(row) {
     hotelName: row.hotel_name,
     category: row.category,
     city: row.city,
+    room_type_name: row.name || "",
     state: row.state,
     country: row.country,
     price: Number(row.price),
@@ -33,6 +34,10 @@ export function mapHotels(row) {
 export function mapHotel(row) {
   const data = parseJson(row.data) || {};
 
+  const roomTypes = parseJson(row.room_types) || [];
+  const amenities = parseJson(row.amenities) || [];
+  const images = parseJson(row.images) || [];
+
   return {
     ...data,
 
@@ -46,17 +51,30 @@ export function mapHotel(row) {
 
     hotelName: row.hotel_name || "Unnamed hotel",
 
+    room_type_name: row.room_type_name || "",
+
+    roomTypes: Array.isArray(roomTypes)
+      ? roomTypes
+      : [],
+
     category: row.category || "",
 
     city: row.city || "",
     state: row.state || "",
     country: row.country || "",
 
+    description: row.description || "",
+
+    checkIn: row.check_in_time || "",
+    checkOut: row.check_out_time || "",
+
+    phone: row.phone || "",
+
+
+
     price: Number(row.price) || 0,
 
-    // Use the actual database approval column.
     status: row.approval_status || "",
-
     approved: row.approval_status === "approved",
 
     featured:
@@ -77,10 +95,17 @@ export function mapHotel(row) {
     reviewCount:
       Number(row.review_count ?? data.reviewCount) || 0,
 
-    amenities:
-      Array.isArray(data.amenities)
+    // Related amenities from amenities table.
+    amenities: Array.isArray(amenities)
+      ? amenities
+      : Array.isArray(data.amenities)
         ? data.amenities
         : [],
+
+    // Related hotel images from hotel_images table.
+    images: Array.isArray(images)
+      ? images
+      : [],
 
     createdAt: iso(row.created_at),
     updatedAt: iso(row.updated_at),

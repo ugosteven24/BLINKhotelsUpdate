@@ -104,18 +104,18 @@ export default function HotelDetailsPage({ params }) {
 
   if (loading) {
     return (
-        
+
       <>
 
-      <main className="min-h-screen bg-slate-50 px-4 py-12">
-        <div className="mx-auto max-w-6xl animate-pulse space-y-6">
-          <div className="h-5 w-36 rounded bg-slate-200" />
-          <div className="h-80 rounded-3xl bg-slate-200 md:h-[440px]" />
-          <div className="h-8 w-2/3 rounded bg-slate-200" />
-          <div className="h-5 w-1/3 rounded bg-slate-200" />
-          <div className="h-40 rounded-2xl bg-slate-200" />
-        </div>
-      </main>
+        <main className="min-h-screen bg-slate-50 px-4 py-12">
+          <div className="mx-auto max-w-6xl animate-pulse space-y-6">
+            <div className="h-5 w-36 rounded bg-slate-200" />
+            <div className="h-80 rounded-3xl bg-slate-200 md:h-[440px]" />
+            <div className="h-8 w-2/3 rounded bg-slate-200" />
+            <div className="h-5 w-1/3 rounded bg-slate-200" />
+            <div className="h-40 rounded-2xl bg-slate-200" />
+          </div>
+        </main>
       </>
     );
   }
@@ -148,18 +148,47 @@ export default function HotelDetailsPage({ params }) {
     );
   }
 
-  const gallery = Array.isArray(hotel.galleryImages)
-    ? hotel.galleryImages.filter(Boolean)
+  const gallery = Array.isArray(hotel.images)
+    ? hotel.images
+      .map((image) => {
+        if (typeof image === "string") return image;
+
+        return (
+          image.image_url ||
+          image.image_path ||
+          image.url ||
+          image.path ||
+
+          ""
+        );
+      })
+      .filter(Boolean)
     : [];
 
   const images = [
-    ...new Set([hotel.coverImage, ...gallery].filter(Boolean)),
+    ...new Set(
+      [hotel.coverImage, ...gallery].filter(Boolean)
+    ),
   ];
 
   const amenities = Array.isArray(hotel.amenities)
     ? hotel.amenities
+      .map((amenity) => {
+        if (typeof amenity === "string") return amenity;
+
+        return (
+          amenity.name ||
+          amenity.amenity_name ||
+          amenity.title ||
+          ""
+        );
+      })
+      .filter(Boolean)
     : [];
 
+  const roomTypes = Array.isArray(hotel.roomTypes)
+    ? hotel.roomTypes
+    : [];
   const price = formatPrice(hotel.price);
 
   const location = [
@@ -179,7 +208,7 @@ export default function HotelDetailsPage({ params }) {
       <div className="border-b border-slate-200 bg-white">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
           <Link
-            href="/dashboard/explore"
+            href="/explore"
             className="inline-flex items-center gap-2 text-sm font-semibold text-slate-600 transition hover:text-slate-950"
           >
             <ArrowLeft size={18} />
@@ -199,7 +228,7 @@ export default function HotelDetailsPage({ params }) {
             Home
           </Link>
           <ChevronRight size={15} />
-          <Link href="/dashboard/explore" className="hover:text-slate-900">
+          <Link href="/explore" className="hover:text-slate-900">
             Hotels
           </Link>
           <ChevronRight size={15} />
@@ -333,11 +362,10 @@ export default function HotelDetailsPage({ params }) {
                   key={`${image}-${index}`}
                   type="button"
                   onClick={() => setActiveImage(image)}
-                  className={`h-20 w-24 shrink-0 overflow-hidden rounded-xl border-2 transition ${
-                    activeImage === image
-                      ? "border-slate-900"
-                      : "border-transparent opacity-70 hover:opacity-100"
-                  }`}
+                  className={`h-20 w-24 shrink-0 overflow-hidden rounded-xl border-2 transition ${activeImage === image
+                    ? "border-slate-900"
+                    : "border-transparent opacity-70 hover:opacity-100"
+                    }`}
                   aria-label={`Select photo ${index + 1}`}
                 >
                   <img
@@ -377,16 +405,83 @@ export default function HotelDetailsPage({ params }) {
               )}
             </section>
 
+            {/* Available room types */}
+            <section className="rounded-2xl border border-slate-200 bg-white p-6 sm:p-8">
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <h2 className="text-xl font-bold text-slate-950">
+                    Available room types
+                  </h2>
+
+                  <p className="mt-1 text-sm text-slate-500">
+                    Choose a room that suits your needs.
+                  </p>
+                </div>
+
+                <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">
+                  {roomTypes.length} {roomTypes.length === 1 ? "room type" : "room types"}
+                </span>
+              </div>
+
+              {roomTypes.length > 0 ? (
+                <div className="mt-6 grid gap-4 sm:grid-cols-2">
+                  {roomTypes.map((room) => (
+                    <div
+                      key={room.id}
+                      className="rounded-xl border border-slate-200 p-5 transition hover:border-slate-400"
+                    >
+                      <div className="flex items-start justify-between gap-3">
+                        <div>
+                          <h3 className="font-bold text-slate-900">
+                            {room.name || room.room_type_name || "Unnamed room"}
+                          </h3>
+
+                          {room.status && (
+                            <span className="mt-2 inline-block rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-700">
+                              {room.status}
+                            </span>
+                          )}
+                        </div>
+
+                        <HotelIcon
+                          size={22}
+                          className="shrink-0 text-slate-400"
+                        />
+                      </div>
+
+                      <div className="mt-5 border-t border-slate-100 pt-4">
+                        <p className="text-xs text-slate-500">
+                          Price per night
+                        </p>
+
+                        <p className="mt-1 text-xl font-extrabold text-slate-950">
+
+                          {formatPrice(room.base_price) || "Contact for price"}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="mt-5 text-sm text-slate-500">
+                  No room types have been added to this hotel yet.
+                </p>
+              )}
+            </section>
+
             {/* Amenities */}
             <section className="rounded-2xl border border-slate-200 bg-white p-6 sm:p-8">
               <h2 className="text-xl font-bold text-slate-950">
                 Hotel amenities
               </h2>
 
+
+
               {amenities.length > 0 ? (
                 <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
                   {amenities.map((amenity, index) => {
-                    const key = String(amenity);
+                    const key = String(amenity).trim();
+
                     const Icon =
                       amenityIcons[key.toLowerCase()] || CheckCircle;
 
@@ -398,6 +493,7 @@ export default function HotelDetailsPage({ params }) {
                         <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-slate-50 text-slate-600">
                           <Icon size={19} />
                         </span>
+
                         <span className="font-medium">{key}</span>
                       </div>
                     );
@@ -505,20 +601,32 @@ export default function HotelDetailsPage({ params }) {
           {/* Booking card */}
           <aside className="lg:sticky lg:top-6">
             <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-              <p className="text-sm font-medium text-slate-500">
-                Price per night
-              </p>
 
-              {price ? (
-                <div className="mt-2 flex flex-wrap items-baseline gap-2">
-                  <span className="text-3xl font-extrabold tracking-tight text-slate-950">
-                    {price}
-                  </span>
-                  <span className="text-sm text-slate-500">/ night</span>
+
+              {roomTypes.length > 0 ? (
+                <div className="mt-6  sm:grid-cols-2">
+                  {roomTypes.map((room) => (
+                    <div
+                      key={room.id}
+                      className="rounded-xl border border-slate-200 p-5 transition hover:border-slate-400"
+                    >
+
+
+                      <div className="mt-5 border-t border-slate-100 pt-4">
+                        <p className="text-sm font-medium text-slate-500">
+                          Price per night
+                        </p>
+
+                        <p className="mt-1 text-xl font-extrabold text-slate-950">
+                          {formatPrice(room.base_price) || "Contact for price"}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               ) : (
-                <p className="mt-2 text-lg font-bold text-slate-900">
-                  Contact for price
+                <p className="mt-5 text-sm text-slate-500">
+                  No room types have been added to this hotel yet.
                 </p>
               )}
 
@@ -562,7 +670,7 @@ export default function HotelDetailsPage({ params }) {
 
               <Link
                 href={`/pages/booking/${hotelUrlId}`}
-                className="mt-7 flex w-full items-center justify-center gap-2 rounded-xl bg-slate-900 px-5 py-4 text-sm font-bold text-white transition hover:bg-slate-700"
+                className="mt-7 flex w-full items-center justify-center gap-2 rounded-1 bg-blue-100 px-5 py-4 text-sm font-bold text-white transition hover:bg-slate-700"
               >
                 Check availability
                 <ChevronRight size={18} />

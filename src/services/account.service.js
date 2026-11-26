@@ -169,7 +169,7 @@ export async function uploadMyPhoto(fd) {
 
   const file = fd.get("photo");
   if (!file || typeof file === "string" || !file.size) return fail("Choose a photo to upload.");
-  if (file.size > MAX_AVATAR) return fail("Photos must be 2 MB or smaller.");
+  if (file.size > MAX_AVATAR) return fail(`Photos must be ${MAX_AVATAR / (1024 * 1024)} MB or smaller.`);
   const buf = Buffer.from(await file.arrayBuffer());
   const ext = sniff(buf);
   if (!ext) return fail("Only JPG, PNG or WebP photos are allowed.");

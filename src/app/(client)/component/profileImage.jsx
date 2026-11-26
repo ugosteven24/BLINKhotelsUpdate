@@ -5,7 +5,10 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import { getCurrentUser } from "@/services/auth.service";
 import "./profileImage.css"
+import {
+  getMyAccount,
 
+} from "@/services/account.service";
 export default function UserProfileImage({
   size = 40,
   className = "",
@@ -13,49 +16,38 @@ export default function UserProfileImage({
   const [imageUrl, setImageUrl] = useState("");
   const [loading, setLoading] = useState(true);
 
+  // Load the signed-in guest's real details.
   useEffect(() => {
-    let cancelled = false;
-    let unsubscribeSnapshot = null;
+    let active = true;
+    let leaving = false; // true while we send a signed-out visitor to /login: keep showing "Loading"
 
-    const unsubscribeAuth = (() => { let active = true; (async () => { const user = await getCurrentUser(); if (!active) return; 
-      if (unsubscribeSnapshot) {
-        unsubscribeSnapshot();
-        unsubscribeSnapshot = null;
-      }
-
-      if (!user) {
-        setImageUrl("");
-        setLoading(false);
-        return;
-      }
-
-      setLoading(true);
-
+    (async () => {
       try {
-        // The signed-in user's profile image comes from MySQL via the session.
-        if (cancelled) return;
+        const res = await getMyAccount();
+        if (!active) return;
 
-        setImageUrl(user.photoURL || "");
-      } catch (error) {
-        console.error("Failed to load profile image:", error);
-
-        if (!cancelled) {
-          setImageUrl(user.photoURL || "");
+        if (!res.ok) {
+          if (res.code === "auth") {
+            leaving = true;
+            routerRef.current.replace("/login");
+          } else setLoadError(res.message || "We couldn't load your account.");
+          return;
         }
+
+        const a = res.account;
+      
+        setImageUrl(a.photoURL);
+   
+      } catch (err) {
+        console.error("Failed to load account:", err);
+        if (active) setLoadError("We couldn't load your account. Please refresh the page.");
       } finally {
-        if (!cancelled) {
-          setLoading(false);
-        }
+        if (active && !leaving) setLoading(false);
       }
-     })(); return () => { active = false; }; })();
+    })();
 
     return () => {
-      cancelled = true;
-      unsubscribeAuth();
-
-      if (unsubscribeSnapshot) {
-        unsubscribeSnapshot();
-      }
+      active = false;
     };
   }, []);
 
@@ -69,19 +61,7 @@ export default function UserProfileImage({
     );
   }
 
-  if (!imageUrl) {
-    return (
-      <div
-        className={`profile-image-fallback ${className}`}
-        style={{ width: size, height: size }}
-        aria-label="No profile image"
-      >
-        <span className="material-symbols-outlined">
-          account_circle
-        </span>
-      </div>
-    );
-  }
+
 
   return (
     <img
