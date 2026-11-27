@@ -1,7 +1,7 @@
 @import url("https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=Instrument+Sans:wght@400;500;600;700&display=swap");
 
 .adm{
-  --ink:#0b1630;--ink-2:#1b2c57;--muted:#4a5672;--faint:#7b87a6;--line:#d3dae8;--line-2:#e6eaf2;
+  --ink:#4e76ae;--ink-2:#1b2c57;--muted:#4a5672;--faint:#7b87a6;--line:#d3dae8;--line-2:#e6eaf2;
   --bg:#edf0f6;--card:#fff;--amber:#f5b21b;--amber-ink:#4a3000;
   --ok:#0e7c4a;--bad:#c0261b;--info:#1f4fd8;
   --head:"Bricolage Grotesque","Instrument Sans",system-ui,sans-serif;
@@ -76,10 +76,10 @@ a:hover>.adm-stat{border-color:var(--ink)}
 .adm-msg.err{background:#ffd0ca;color:#7d1209}.adm-msg.okk{background:#c9f0dc;color:#064d2d}
 .adm-dl{display:grid;grid-template-columns:160px 1fr;gap:12px 18px;margin:0}
 .adm-dl dt{color:var(--muted);font-weight:600}.adm-dl dd{margin:0}
-.adm-inline{display:inline-flex;gap:8px;align-items:center;flex-wrap:wrap}
+.adm-inline{display:inline-flex;gap:8px;align-items:center;flex-wrap:wrap;color: white;}
 
 /* ---------- buttons ---------- */
-.adm-btn{font:inherit;font-weight:700;border:2px solid var(--ink);background:var(--ink);color:#fff;padding:10px 20px;border-radius:10px;cursor:pointer;display:inline-block;line-height:1.2;min-height:42px}
+.adm-btn{font:inherit; color: white; font-weight:700;border:2px solid var(--ink);background:var(--ink);color:#fff;padding:10px 20px;border-radius:10px;cursor:pointer;display:inline-block;line-height:1.2;min-height:42px}
 .adm-btn:hover{background:var(--ink-2);border-color:var(--ink-2)}
 .adm-btn.ghost{background:#fff;color:var(--ink);border-color:#b9c3da}.adm-btn.ghost:hover{border-color:var(--ink);background:#fff}
 .adm-btn.danger{background:var(--bad);border-color:var(--bad)}.adm-btn.danger:hover{background:#9f1d14;border-color:#9f1d14}

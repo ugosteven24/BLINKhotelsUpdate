@@ -14,7 +14,9 @@ export const Badge = ({ v }) => (
 
 export const Header = ({ title, sub, children }) => (
   <>
-    <div className="adm-head"><div><h1>{title}</h1>{sub && <p className="adm-sub">{sub}</p>}</div><div className="adm-inline">{children}</div></div>
+    <div className="adm-head"><div><h1>{title}</h1>{sub && <p className="adm-sub">{sub}</p>}</div>
+    <div className="adm-inline">{children}</div>
+    </div>
   </>
 );
 

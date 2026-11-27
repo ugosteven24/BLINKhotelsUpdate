@@ -76,11 +76,11 @@ function CategoriesContent() {
 
   const getCategoryUrl = (category) => {
     const params = new URLSearchParams();
-    params.set("destination", destination);
+    params.set("city", destination);
     // room_type is free text in the DB, so pass the exact name (not a slug)
     // for the room list page to match on.
     params.set("category", category.name);
-    return `/pages/destinationdetails?${params.toString()}`;
+    return `/categorydetails?${params.toString()}`;
   };
 
   const describe = (c) => {
@@ -189,7 +189,7 @@ function CategoriesContent() {
           </div>
         ) : filteredCategories.length === 0 ? (
           <div className={styles.emptyState}>
-            <Search size={36} />
+       
             <h3>No categories found</h3>
             <p>
               {categories.length === 0

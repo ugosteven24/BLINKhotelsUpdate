@@ -93,9 +93,9 @@ export async function registerUser(input) {
     const session = await withTransaction(async (connection) => {
       await run(
         connection,
-        `INSERT INTO users (id, first_name, last_name, full_name, email, password_hash, role)
+        `INSERT INTO users (first_name, last_name, full_name, email, password_hash, role, userId)
          VALUES (?, ?, ?, ?, ?, ?, ?)`,
-        [userId, firstName, lastName, fullName, email, passwordHash, ROLES.CLIENT]
+        [firstName, lastName, fullName, email, passwordHash, ROLES.CLIENT,userId]
       );
       return insertSession(connection, userId, true);
     });

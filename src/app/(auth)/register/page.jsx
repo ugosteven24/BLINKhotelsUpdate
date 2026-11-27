@@ -107,7 +107,7 @@ export default function SignupPage() {
       });
 
       // Redirect to customer dashboard
-      router.push("/dashboard");
+      router.push("/");
       router.refresh();
     } catch (error) {
       console.error(error);
@@ -242,7 +242,7 @@ export default function SignupPage() {
                     name="firstName"
                     value={form.firstName}
                     onChange={handleChange}
-                    placeholder="Stephen"
+                    placeholder="John"
                     autoComplete="given-name"
                     required
                     className="register-input register-input--icon"
@@ -259,7 +259,7 @@ export default function SignupPage() {
                   name="lastName"
                   value={form.lastName}
                   onChange={handleChange}
-                  placeholder="Arinze"
+                  placeholder="Doe"
                   autoComplete="family-name"
                   required
                   className="register-input"

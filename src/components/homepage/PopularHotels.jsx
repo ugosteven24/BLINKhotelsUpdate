@@ -606,7 +606,7 @@ export default function PopularHotels() {
 
                                 {/* DESKTOP VIEW DETAILS */}
                                 <Link
-                                    href={`/pages/hoteldetails/${encodeURIComponent(hotel.id)}`}
+                                    href={`/hoteldetails/${encodeURIComponent(hotel.id)}`}
                                     className="mt-2 hidden text-[11px] font-bold text-emerald-600 hover:text-emerald-700 md:inline-block"
                                 >
                                     View hotel
@@ -616,7 +616,7 @@ export default function PopularHotels() {
 
                             {/* VIEW DETAILS ARROW */}
                             <Link
-                                href={`/pages/hoteldetails/${encodeURIComponent(hotel.id)}`}
+                                href={`/hoteldetails/${encodeURIComponent(hotel.id)}`}
                                 aria-label={`View ${hotel.name}`}
                                 className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-emerald-50 text-emerald-600 transition hover:bg-emerald-600 hover:text-white"
                             >
