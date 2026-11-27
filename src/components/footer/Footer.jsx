@@ -62,8 +62,8 @@ export default function Footer() {
           <h3>Customer Support</h3>
 
           <ul>
-            <li><Link href="/dashboard/mybooking">My Bookings</Link></li>
-            <li><Link href="/dashboard/favorites">My Favorites</Link></li>
+            {/* <li><Link href="/mybooking">My Bookings</Link></li>
+            <li><Link href="/favorites">My Favorites</Link></li> */}
             <li><Link href="/pages/contact">Help & Support</Link></li>
             <li><Link href="/pages/faq">FAQs</Link></li>
             <li><Link href="/pages/privacy">Privacy Policy</Link></li>

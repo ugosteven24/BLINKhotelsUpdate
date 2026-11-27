@@ -437,7 +437,7 @@ export default function ExplorePage() {
                     </div>
 
                     <Link
-                      href={`/dashboard/hoteldetails/${encodeURIComponent(resort.id)}`}
+                      href={`/hoteldetails/${encodeURIComponent(resort.id)}`}
                       className="view-details-button"
                     >
                       View Details

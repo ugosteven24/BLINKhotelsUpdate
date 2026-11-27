@@ -218,7 +218,7 @@ export default function SigninPage() {
             <p>Sign in to continue to your account.</p>
           </div>
 
-          <button
+          {/* <button
             type="button"
             onClick={handleGoogleLogin}
             disabled={googleLoading || loading}
@@ -250,7 +250,7 @@ export default function SigninPage() {
             <span />
             <p>OR</p>
             <span />
-          </div>
+          </div> */}
 
           <form onSubmit={handleLogin} className="login-form">
             <div className="login-field">
